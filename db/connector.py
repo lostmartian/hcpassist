@@ -49,11 +49,6 @@ def get_sample_rows(table_name: str, limit: int=5) -> List[Dict[str, Any]]:
 
 def execute_query(sql_query: str) -> List[Dict[str, Any]]:
     conn = get_connection()
-    FORBIDDEN_KEYWORDS = {"drop", "delete", "insert", "update", "alter", "truncate", "create"}
-    sql_lower = sql_query.lower()
-    if any(word in sql_lower for word in FORBIDDEN_KEYWORDS):
-        logger.warning(f"Blocked suspicious query: {sql_query}")
-        raise QueryExecutionError("Only SELECT queries are allowed.", sql_query)
     try:
         result = conn.execute(sql_query)
         columns = [desc[0] for desc in result.description]
