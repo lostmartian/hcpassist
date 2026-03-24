@@ -7,8 +7,8 @@ Join path: Aggregates over hcp_dim, fact_rx, fact_rep_activity filtered through 
 from typing import Optional
 from langchain_core.tools import tool
 
-from backend.db.connector import execute_query
-from backend.config import settings
+from db.connector import execute_query
+from config import settings
 
 
 @tool

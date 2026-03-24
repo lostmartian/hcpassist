@@ -10,8 +10,8 @@ KEY GOTCHA: rep_dim.region is a STRING name ('Territory 1'), NOT the integer ter
 from typing import Optional
 from langchain_core.tools import tool
 
-from backend.db.connector import execute_query
-from backend.config import settings
+from db.connector import execute_query
+from config import settings
 
 
 @tool

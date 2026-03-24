@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = Field(default="gemini-embedding-001", descrription="embedding model")
     MAX_RETRIES: int = Field(default=3, descrription="max retries")
     DATA_DIR: str = Field(default="./data", descrription="data directory")
-    DOCS_DIR: str = Field(default="./docs", descrription="docs directory")
+    DOCS_DIR: str = Field(default="./context_doc", descrription="docs directory")
 
     DATA_WINDOW_START: str = Field(default="2024-08-01", description="earliest date in the dataset")
     DATA_WINDOW_END: str = Field(default="2025-12-31", description="latest date in the dataset")

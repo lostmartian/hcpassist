@@ -2,7 +2,7 @@ import re
 import sqlparse
 import logging
 from typing import Optional
-from db.connection import get_connection
+from db.connector import get_connection
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,7 @@
 from typing import Optional
 from langchain_core.tools import tool
 
-from backend.db.connector import execute_query
+from db.connector import execute_query
 
 
 @tool

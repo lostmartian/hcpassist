@@ -2,7 +2,7 @@ import logging
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import SystemMessage
 from langgraph.prebuilt import ToolNode
-from configm import settings
+from config import settings
 from tools.library.hcp_lookup import get_hcp_profile
 from tools.library.hcp_rx import get_hcp_rx_performance
 from tools.library.account_summary import get_account_profile
@@ -25,10 +25,12 @@ from tools.fallback_sql import execute_safe_sql
 from graph.nodes.planner import planner_node, get_planner_llm, get_system_prompt
 from graph.nodes.verifier import verifier_node
 from graph.nodes.responder import responder_node
+from graph.nodes.guard import guard_node
+from graph.state import AgentState
 
 from rag.retriever import search_doc
 
-from utils import extract_text_content
+from utils.clean_content import extract_text_content
 
 logger = logging.getLogger(__name__)
 
@@ -86,12 +88,13 @@ def build_graph():
     workflow.add_node("executer", tool_node)
     workflow.add_node("verifier", verifier_node)
     workflow.add_node("responder", responder_node)
+    workflow.add_node("guard", guard_node)
 
     """
-    planner -> executer -> verifier -> responder -> END
-            -> responder
+    planner -> executer -> verifier -> responder -> guard -> END
+            -> responder -> guard -> END
     if verifier fails -> planner
-    if verifier fails and max retries reached -> responder
+    if verifier fails and max retries reached -> responder -> guard -> END
     """
     workflow.set_entry_point("planner")
     workflow.add_conditional_edges(
@@ -111,7 +114,8 @@ def build_graph():
             "responder": "responder"
         }
     )
-    workflow.add_edge("responder", END)
+    workflow.add_edge("responder", "guard")
+    workflow.add_edge("guard", END)
 
     workflow_compiled = workflow.compile()
     logger.info("Graph compiled successfully")

@@ -1,6 +1,6 @@
 from langchain_core.tools import tool
 from db.connector import execute_query, get_schema_snapshot
-from db.validator import validate_sql_safety
+from db.validator import validate_sql_query
 
 @tool
 def execute_safe_sql(sql_query: str) -> str:
@@ -31,7 +31,7 @@ def execute_safe_sql(sql_query: str) -> str:
         sql_query: A valid SELECT SQL query string.
     """
     try:
-        validated_sql = validate_sql_safety(sql_query)
+        validated_sql = validate_sql_query(sql_query)
     except Exception as e:
         return f"SAFETY ERROR: {str(e)}"
 

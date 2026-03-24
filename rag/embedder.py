@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import List
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
@@ -17,13 +18,16 @@ def get_vectorstore() -> FAISS:
             google_api_key=settings.GOOGLE_API_KEY,
         )
         docs = _build_docs()
+        if not docs:
+            logger.warning("No documents found in DOCS_DIR. Vectorstore will not be initialized.")
+            return None
         _vectorstore = FAISS.from_documents(docs, embeddings)
         logger.info(f"Built vectorstore with {len(docs)} documents")
     return _vectorstore
 
 def _build_docs() -> List[Document]:
     docs = []
-    context_docs_dir = settings.DOCS_DIR
+    context_docs_dir = os.path.abspath(settings.DOCS_DIR)
     analysis_file_path = os.path.join(context_docs_dir, "analysis.md")
     if os.path.exists(analysis_file_path):
         with open(analysis_file_path, "r", encoding="utf-8") as f:

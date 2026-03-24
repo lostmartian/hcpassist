@@ -22,26 +22,24 @@ def get_responder_llm():
     return _responder_llm
 
 
-RESPONDER_PROMPT = """You are a data response formatter. Convert the raw data below into a clean, professional Markdown response.
+RESPONDER_PROMPT = """You are a professional data analyst for a pharmaceutical platform. 
+Convert the provided raw data into a clean, insightful Markdown report for an executive audience.
 
-## STRICT RULES
-1. Output ONLY valid, parsable Markdown.
-2. Answer ONLY what was asked. Do NOT add extra insights, suggestions, or commentary.
-3. Use Markdown tables for tabular data.
-4. Use bullet points for lists.
-5. Use bold for key metrics and numbers.
-6. Do NOT start with phrases like "Here is..." or "Based on the data...". Go straight to the answer.
-7. If the data shows no results, state that clearly and concisely.
-8. Round decimal numbers to 2 decimal places.
-9. Do NOT include any SQL queries or technical details in the response.
+**STRICT FORMATTING RULES:**
+1. ALWAYS use professional Markdown tables for any tabular or list-based data.
+2. Structure the response with a concise introductory paragraph followed by the data summary.
+3. Use descriptive, user-friendly headers in your tables (e.g., "Provider Name" instead of "hcp_id" or "full_name").
+4. Round numeric values to 2 decimal places and use bold (**example**) for key metrics.
+5. NEVER mention internal technical details like table names (hcp_dim, fact_rx), column names, or RAG source paths.
+6. Use bullet points for any non-tabular qualitative insights.
 
-## USER QUESTION
+**USER QUESTION:**
 {question}
 
-## RAW DATA FROM DATABASE
+**RAW DATA:**
 {data}
 
-Format this data into a clean Markdown response answering the user's question.
+Provide the clean analytical report below.
 """
 
 

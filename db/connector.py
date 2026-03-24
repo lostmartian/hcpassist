@@ -2,7 +2,10 @@ import duckdb
 from config import settings
 import os
 import json
-from typing import Dict, Any
+import logging
+from typing import Dict, Any, List
+
+logger = logging.getLogger(__name__)
 
 _connection: duckdb.DuckDBPyConnection | None = None
 
@@ -10,6 +13,7 @@ def get_connection() -> duckdb.DuckDBPyConnection:
     global _connection
     if _connection is None:
         _connection = duckdb.connect(database=":memory:", read_only=False)
+        _load_csv(_connection)
         
     return _connection
 
@@ -41,7 +45,7 @@ def get_schema_snapshot() -> Dict[str, Any]:
         ]
     return schema_snapshot
 
-def get_schema_snapshot_as_json() -> str:
+def get_schema_as_json() -> str:
     return json.dumps(get_schema_snapshot(), indent=2)
 
 def get_sample_rows(table_name: str, limit: int=5) -> List[Dict[str, Any]]:

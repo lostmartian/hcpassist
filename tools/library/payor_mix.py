@@ -7,8 +7,8 @@ Join path: fact_payor_mix → account_dim (account_id) → territory_dim (territ
 from typing import Optional
 from langchain_core.tools import tool
 
-from backend.db.connector import execute_query
-from backend.config import settings
+from db.connector import execute_query
+from config import settings
 
 
 @tool

@@ -4,7 +4,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 
 from config import settings
 from graph.state import AgentState
-from core.utils import extract_text_content
+from utils.clean_content import extract_text_content
 
 logger = logging.getLogger(__name__)
 _verifier_llm = None

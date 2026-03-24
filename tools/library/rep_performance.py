@@ -8,8 +8,8 @@ Join path: fact_rep_activity → rep_dim → date_dim
 from typing import Optional
 from langchain_core.tools import tool
 
-from backend.db.connector import execute_query
-from backend.config import settings
+from db.connector import execute_query
+from config import settings
 
 
 @tool
