@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import uuid
 from fastapi import APIRouter, HTTPException
@@ -43,7 +44,7 @@ async def chat(request: ChatRequest):
     }
 
     try:
-        result = graph.invoke(init_state)
+        result = await asyncio.to_thread(graph.invoke, init_state)
         answer = result.get("final_response") or "Unable to generate response"
         retry_count = result.get("retry_count", 0)
         logger.info(f"Retry count: {retry_count}")

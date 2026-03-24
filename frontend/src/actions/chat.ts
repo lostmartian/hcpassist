@@ -2,7 +2,8 @@
 
 export async function sendMessage(message: string) {
   try {
-    const response = await fetch("http://localhost:8000/api/v1/chat", {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+    const response = await fetch(`${apiUrl}/chat`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
