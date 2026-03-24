@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  
+  --color-brand-primary: #1E293B;
+  --color-brand-accent: #6366F1;
+  --color-brand-indigo: #818CF8;
+  --color-brand-teal: #2DD4BF;
+  
+  --color-background: #FBFDFF;
+  --color-foreground: #1E293B;
+  
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1E293B;
+  
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1E293B;
+  
+  --color-primary: #1E293B;
+  --color-primary-foreground: #FFFFFF;
+  
+  --color-secondary: #F8FAFC;
+  --color-secondary-foreground: #1E293B;
+  
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
+  
+  --color-accent: #6366F1;
+  --color-accent-foreground: #FFFFFF;
+  
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  
+  --color-border: #E2E8F0;
+  --color-input: #F8FAFC;
+  --color-ring: transparent;
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+@layer base {
+  * {
+    @apply border-none outline-none;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
