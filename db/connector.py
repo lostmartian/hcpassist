@@ -1,0 +1,73 @@
+import duckdb
+from config import settings
+import os
+import json
+from typing import Dict, Any
+
+_connection: duckdb.DuckDBPyConnection | None = None
+
+def get_connection() -> duckdb.DuckDBPyConnection:
+    global _connection
+    if _connection is None:
+        _connection = duckdb.connect(database=":memory:", read_only=False)
+        
+    return _connection
+
+def _load_csv(conn: duckdb.DuckDBPyConnection) -> None:
+    data_dir = settings.DATA_DIR
+    if not os.path.exists(data_dir):
+        raise FileNotFoundError(f"Data directory not found: {data_dir}")
+    
+    csv_files = [f for f in os.listdir(data_dir) if f.endswith(".csv")]
+    for csv_file in csv_files:
+        table_name = csv_file.replace(".csv", "")
+        file_path = os.path.join(data_dir, csv_file)
+        conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM read_csv_auto('{file_path}')")
+        logger.info(f"Loaded {csv_file} into table {table_name}")
+
+def get_schema_snapshot() -> Dict[str, Any]:
+    conn = get_connection()
+    tables = conn.execute(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'main'"
+    ).fetchall()
+    schema_snapshot = {}
+    for table in tables:
+        table_name = table[0]
+        columns = conn.execute(
+            f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table_name}'"
+        ).fetchall()
+        schema_snapshot[table_name] = [
+            {"name": col_name, "type": col_type} for col_name, col_type in columns
+        ]
+    return schema_snapshot
+
+def get_schema_snapshot_as_json() -> str:
+    return json.dumps(get_schema_snapshot(), indent=2)
+
+def get_sample_rows(table_name: str, limit: int=5) -> List[Dict[str, Any]]:
+    return get_connection().execute(f"SELECT * FROM {table_name} LIMIT {limit}").fetchall()
+
+def execute_query(sql_query: str) -> List[Dict[str, Any]]:
+    conn = get_connection()
+    FORBIDDEN_KEYWORDS = {"drop", "delete", "insert", "update", "alter", "truncate", "create"}
+    sql_lower = sql_query.lower()
+    if any(word in sql_lower for word in FORBIDDEN_KEYWORDS):
+        logger.warning(f"Blocked suspicious query: {sql_query}")
+        raise QueryExecutionError("Only SELECT queries are allowed.", sql_query)
+    try:
+        result = conn.execute(sql_query)
+        columns = [desc[0] for desc in result.description]
+        rows = result.fetchall()
+        return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        logger.error(f"Error executing query: {e}")
+        raise QueryExecutionError(str(e), sql_query)
+
+class QueryExecutionError(Exception):
+    def __init__(self, message: str, query: str):
+        self.message = message
+        self.query = query
+        super().__init__(f"SQL Error: {message}\nQuery: {query}")
+
+
+    
