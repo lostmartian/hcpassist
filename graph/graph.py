@@ -26,6 +26,8 @@ from graph.nodes.planner import planner_node, get_planner_llm, get_system_prompt
 from graph.nodes.verifier import verifier_node
 from graph.nodes.responder import responder_node
 
+from rag.retriever import search_doc
+
 from utils import extract_text_content
 
 logger = logging.getLogger(__name__)
@@ -48,6 +50,7 @@ ALL_TOOLS_LIST = [
     get_account_performance,
     get_kpi_dashboard,
     get_growth_analysis,
+    search_doc,
     execute_safe_sql,
 ]
 
