@@ -78,19 +78,32 @@ def get_rep_activity_summary(
 
     if aggregate and not hcp_name:
         # ── AGGREGATE MODE: one row per rep+activity_type+status with TOTAL count ──
-        # No LIMIT — these are already grouped totals, not exploded rows.
+        # Include an "OVERALL TOTAL" row for the rep to prevent LLM summation errors.
         sql = f"""
-        SELECT
-            r.first_name || ' ' || r.last_name AS rep_name,
-            r.region AS territory_name,
-            a.activity_type,
-            a.status,
-            COUNT(*) AS total_activity_count,
-            AVG(a.duration_min) AS avg_duration_min
-        {base_joins}
-        {filters}
-        GROUP BY rep_name, r.region, a.activity_type, a.status
-        ORDER BY rep_name, a.activity_type, a.status
+        WITH counts AS (
+            SELECT
+                r.first_name || ' ' || r.last_name AS rep_name,
+                r.region AS territory_name,
+                a.activity_type,
+                a.status,
+                COUNT(*) AS count_val,
+                AVG(a.duration_min) AS avg_dur
+            {base_joins}
+            {filters}
+            GROUP BY rep_name, r.region, a.activity_type, a.status
+        )
+        SELECT * FROM counts
+        UNION ALL
+        SELECT 
+            rep_name, 
+            territory_name, 
+            'ALL' as activity_type, 
+            'TOTAL' as status, 
+            SUM(count_val) as count_val,
+            AVG(avg_dur) as avg_dur
+        FROM counts
+        GROUP BY rep_name, territory_name
+        ORDER BY rep_name, activity_type, status
         """
     else:
         # ── DETAIL MODE: per-HCP/account breakdown (use for engagement analysis) ──

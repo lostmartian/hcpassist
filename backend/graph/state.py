@@ -6,5 +6,9 @@ class AgentState(TypedDict):
     messages: Annotated[list, add_messages]
     retry_count: int
     last_tool_result: Optional[str]
-    verification_flag: bool
+    verification_passed: bool
     final_response: Optional[str]
+    plan: Optional[List[str]]
+    intermediate_results: Dict[str, Any]
+    next_agent: Optional[str]
+    introspective_feedback: Optional[str]

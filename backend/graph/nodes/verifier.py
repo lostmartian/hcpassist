@@ -39,7 +39,8 @@ Do NOT add any other text.
 
 def verifier_node(state: AgentState) -> dict:
     llm = get_verifier_llm()
-    messages = state["messages"] + [HumanMessage(content=VERIFICATION_PROMPT)]
+    # Prompt Caching Optimization: instruction first
+    messages = [SystemMessage(content=VERIFICATION_PROMPT)] + state["messages"]
     response = llm.invoke(messages)
     content = extract_text_content(response.content)
     result = content.strip()

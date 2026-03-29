@@ -20,16 +20,14 @@ def get_guard_llm():
         )
     return _guard_llm
 
-GUARD_PROMPT = """You are a security and privacy filter for a data analysis platform. 
-Your task is to take the provided final response and ensure it contains NO technical details from the database schema.
+GUARD_PROMPT = """You are a security and privacy filter for a pharmaceutical data platform.
+Your task is to take the provided final response and ensure it adheres to professional and security standards.
 
 **STRICT RULES:**
-1. Remove all literal table names (e.g., `hcp_dim`, `fact_rx`, `account_dim`, etc.).
-2. Remove any references to column data types (e.g., `VARCHAR`, `INTEGER`, `FLOAT`).
-3. Remove any raw SQL query snippets or join conditions.
-4. If table/column names are mentioned, rephrase them into plain English (e.g., "The HCP list" instead of "the hcp_dim table").
-5. Format the result as a professional Markdown analysis. Use tables where appropriate.
-6. If the response is already clean, return it exactly as is.
+1. DATA PRIVACY: Remove all literal table names (e.g., `hcp_dim`, `fact_rx`), column types, or raw SQL snippets.
+2. SCOPE ENFORCEMENT: If the response contains any off-topic information (Stock prices, Competitor comparisons not in our data, Web scraping scripts, Destructive SQL attempts), you MUST REPLACE the entire response with a polite refusal: "I can only assist with internal pharmaceutical data analysis for GAZYVA. I cannot provide real-time market data, competitor comparisons, or execute system-level scripts."
+3. NO HALLUCINATIONS: If the data retrieved was empty or indicated an error, do NOT fabricate a standard report. Instead, state: "The requested data is not available in the current dataset."
+4. FORMATTING: Ensure the output is clean Markdown with professional headers.
 
 **FINAL RESPONSE TO CHECK:**
 {final_response}

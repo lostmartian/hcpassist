@@ -46,17 +46,23 @@ Provide the clean analytical report below.
 def responder_node(state: AgentState) -> dict:
     llm = get_responder_llm()
     user_question = ""
+    tool_data_list = []
+    
     for msg in state["messages"]:
-        if hasattr(msg, "type") and msg.type == "human":
-            user_question = msg.content
-    tool_data = state.get("last_tool_result", "")
+        if hasattr(msg, "type"):
+            if msg.type == "human":
+                user_question = msg.content
+            elif msg.type == "tool":
+                tool_data_list.append(msg.content)
+    
+    combined_data = "\n---\n".join(tool_data_list) if tool_data_list else "No data retrieved."
 
-    prompt = RESPONDER_PROMPT.format(question=user_question, data=tool_data)
+    prompt = RESPONDER_PROMPT.format(question=user_question, data=combined_data)
 
     response = llm.invoke([HumanMessage(content=prompt)])
     content = extract_text_content(response.content)
     formatted = content.strip()
 
-    logger.info(f"Responder generated {len(formatted)} chars of Markdown")
+    logger.info(f"Responder generated {len(formatted)} chars of Markdown from {len(tool_data_list)} tool results")
 
     return {"final_response": formatted}

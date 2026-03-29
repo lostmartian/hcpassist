@@ -50,27 +50,35 @@ def get_account_payor_mix(
     # This produces ONE row per payor_type with a single weighted average,
     # matching the ground truth which is defined per account_id, not per sub-location.
     if account_id is not None:
+        # If no specific time filter is given, default to the LATEST available date_id for this account
+        time_filter = ""
+        if year:
+            time_filter += f" AND d.year = {year}"
+        if quarter:
+            time_filter += f" AND d.quarter = '{quarter}'"
+        
+        if not time_filter:
+            # Default to latest data point
+            latest_date_query = f"SELECT MAX(date_id) FROM fact_payor_mix WHERE account_id = {account_id}"
+            time_filter = f" AND pm.date_id = ({latest_date_query})"
+
         sql = f"""
         SELECT
             acc.name AS account_name,
             acc.account_id,
             pm.payor_type,
-            AVG(pm.pct_of_volume) AS avg_pct_of_volume
+            pm.pct_of_volume
         FROM fact_payor_mix pm
         JOIN account_dim acc ON pm.account_id = acc.account_id
         JOIN date_dim d ON pm.date_id = d.date_id
         WHERE pm.account_id = {account_id}
           AND d.calendar_date BETWEEN '{settings.DATA_WINDOW_START}' AND '{settings.DATA_WINDOW_END}'
+          {time_filter}
         """
         if payor_type:
             sql += f" AND pm.payor_type = '{payor_type}'"
-        if year:
-            sql += f" AND d.year = {year}"
-        if quarter:
-            sql += f" AND d.quarter = '{quarter}'"
         sql += """
-        GROUP BY acc.name, acc.account_id, pm.payor_type
-        ORDER BY avg_pct_of_volume DESC
+        ORDER BY pct_of_volume DESC
         """
     else:
         # ── Without account_id: group by name+location+territory (detailed breakdown) ──
