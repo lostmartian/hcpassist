@@ -3,6 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Add ARG for backend URL (required for Next.js build-time)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # Install dependencies
 COPY package*.json ./
 RUN npm install
@@ -28,5 +32,5 @@ COPY --from=builder /app/node_modules ./node_modules
 # Expose port
 EXPOSE 3000
 
-# Start application
-CMD ["npm", "run", "start"]
+# Start application with dynamic port (provided by GCP)
+CMD ["sh", "-c", "npm start -- -p ${PORT:-3000}"]

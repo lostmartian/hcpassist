@@ -1,6 +1,8 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from api.routes import router as api_router
 from db.connector import get_connection
 from rag.embedder import get_vectorstore
@@ -24,6 +26,15 @@ app = FastAPI(
     title="Synthio Lab Analyst",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+# Add CORS Middleware for GCP/Frontend support
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For "minimal changes" - can be restricted later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(api_router, prefix="/api/v1")
